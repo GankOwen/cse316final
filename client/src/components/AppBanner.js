@@ -49,6 +49,7 @@ export default function AppBanner() {
             onClose={handleMenuClose}
         >
             <MenuItem onClick={handleMenuClose}><Link to='/register/'>Create New Account</Link></MenuItem>
+            <MenuItem onClick={handleMenuClose}><Link to='/login/'>Log In</Link></MenuItem>
         </Menu>
     );
     const loggedInMenu = 
@@ -80,7 +81,11 @@ export default function AppBanner() {
     }
     
     function getAccountMenu(loggedIn) {
-        return <AccountCircle />;
+        if(loggedIn){
+            return auth.user.firstName.charAt(0).toUpperCase()+ auth.suer.lastName.charAt(0);
+        }else{
+            return <AccountCircle />;
+        }
     }
 
     return (

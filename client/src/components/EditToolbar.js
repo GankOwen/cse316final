@@ -23,28 +23,64 @@ function EditToolbar() {
     function handleClose() {
         store.closeCurrentList();
     }
+    function ifHaveUndo(){
+        return store.canUndo();
+    }
+    function ifHaveRedo(){
+        return store.canRedo();
+    }
     let editStatus = false;
     if (store.isListNameEditActive) {
         editStatus = true;
-    }  
+    }
+    
+    if(store.isListNameEditActive){
+        editStatus = true;
+    }
+
+    
+
     return (
         <div id="edit-toolbar">
+            {ifHaveUndo ? 
             <Button 
                 id='undo-button'
                 onClick={handleUndo}
-                variant="contained">
+                variant="contained"
+                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}>
                     <UndoIcon />
             </Button>
+            :
+            <Button 
+                id='undo-button'
+                onClick={handleUndo}
+                variant="contained"
+                className = "top5-button-disabled">
+                    <UndoIcon />
+            </Button>}
+            
+            {ifHaveRedo ? 
             <Button 
                 id='redo-button'
                 onClick={handleRedo}
-                variant="contained">
-                    <RedoIcon />
+                variant="contained"
+                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}>
+                    <UndoIcon />
             </Button>
+            :
+            <Button 
+                id='redo-button'
+                onClick={handleRedo}
+                variant="contained"
+                className = "top5-button-disabled">
+                    <UndoIcon />
+            </Button>}
+
             <Button 
                 disabled={editStatus}
                 id='close-button'
                 onClick={handleClose}
+                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}
                 variant="contained">
                     <CloseIcon />
             </Button>

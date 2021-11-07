@@ -19,6 +19,7 @@ getLoggedIn = async (req, res) => {
 registerUser = async (req, res) => {
     try {
         const { firstName, lastName, email, password, passwordVerify } = req.body;
+        console.log(req.body)
         if (!firstName || !lastName || !email || !password || !passwordVerify) {
             return res
                 .status(400)
@@ -77,8 +78,70 @@ registerUser = async (req, res) => {
         res.status(500).send();
     }
 }
+// passing user data inform
+    // email, password
+    // find user with that user(find function)
+    // if cannot find, return not exist user
+    // if can find, compare the password
+    // piazza bitcyph plaint password
+    // if match the password return user and set the user auth (200) 
+    logInUser = async (req, res) => {
+        try {
+            const {email, password} = req.body;
+            if (!email || !password) {
+                return res
+                    .status(201)
+                    .json({ errorMessage: "Please enter all required fields." });
+            }
+            if (password.length < 8) {
+                return res
+                    .status(201)
+                    .json({
+                        errorMessage: "Please enter a password of at least 8 characters."
+                    });
+            }
 
+            const existingUser = await User.findOne({ email: email });
+            if (!existingUser) {
+                return res
+                    .status(201)
+                    .json({
+                        success: false,
+                        errorMessage: "The account does not exist"
+                    });
+            }
+            var passwordCheck = await bcrypt.compare(password,existingUser.password);
+            if(!passwordCheck){
+                return res
+                    .status(201)
+                    .json({
+                        success: false,
+                        errorMessage: "Wrong Password"
+                    });
+            }
+    
+            // LOGIN THE USER
+            const token = auth.signToken(existingUser);
+    
+            await res.cookie("token", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none"
+            }).status(200).json({
+                success: true,
+                user: {
+                    firstName: existingUser.firstName,
+                    lastName: existingUser.lastName,
+                    email: existingUser.email
+                }
+            }).send();
+        } catch (err) {
+            console.error(err);
+            res.status(500).send();
+        }
+    }
 module.exports = {
     getLoggedIn,
-    registerUser
+    registerUser,
+    logInUser
 }

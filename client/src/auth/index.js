@@ -1,3 +1,4 @@
+import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 import React, { createContext, useEffect, useState } from "react";
 import { useHistory } from 'react-router-dom'
 import api from '../api'
@@ -8,7 +9,9 @@ console.log("create AuthContext: " + AuthContext);
 // THESE ARE ALL THE TYPES OF UPDATES TO OUR AUTH STATE THAT CAN BE PROCESSED
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    LOGIN_USER: "LOGIN_USER",
+    LOGOUT_USER: "LOGOUT_USER"
 }
 
 function AuthContextProvider(props) {
@@ -17,9 +20,22 @@ function AuthContextProvider(props) {
         loggedIn: false
     });
     const history = useHistory();
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const handleOpen = () =>{
+        setOpen(true);
+    }
+
+    const handleClose = () =>{
+        setOpen(false);
+    }
 
     useEffect(() => {
-        auth.getLoggedIn();
+        if(auth.loggedIn){
+            auth.getLoggedIn();
+        }
+        
     }, []);
 
     const authReducer = (action) => {
@@ -37,6 +53,19 @@ function AuthContextProvider(props) {
                     loggedIn: true
                 })
             }
+            case AuthActionType.LOGIN_USER:{
+                return setAuth({
+                    user:payload.user,
+                    loggedIn: true
+                })
+            }
+            case AuthActionType.LOGOUT_USER:{
+                return setAuth({
+                    user:null,
+                    loggedIn: true
+                })
+            }
+
             default:
                 return auth;
         }
@@ -56,7 +85,9 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
-        const response = await api.registerUser(userData);      
+        console.log(userData)
+        const response = await api.registerUser(userData); 
+        console.log(response, "response!!!")
         if (response.status === 200) {
             authReducer({
                 type: AuthActionType.REGISTER_USER,
@@ -69,11 +100,49 @@ function AuthContextProvider(props) {
         }
     }
 
+    auth.logInUser = async function(userData, store) {
+        const response = await api.loginUser(userData);      
+        if (response.status === 200) {
+            authReducer({
+                type: AuthActionType.REGISTER_USER,
+                payload: {
+                    user: response.data.user
+                }
+            })
+            history.push("/");
+            store.loadIdNamePairs();
+        }else{
+            setMessage(response.data.errorMessage);
+            handleOpen();
+        }
+    }
+
+    auth.logoutUser = function(){
+        authReducer({
+            type:AuthActionType.LOGOUT_USER,
+            payload:{}
+        })
+        history.push("/");
+    }
+
     return (
         <AuthContext.Provider value={{
             auth
         }}>
             {props.children}
+            <Dialog
+                open ={open}
+                onClose={handleClose}
+                maxWidth = 'sm'
+                id = "sign-in-model"
+                >
+                <DialogTitle>
+                    {message}
+                    <DialogActions>
+                        <Button onClick = {handleClose}>Close</Button>
+                    </DialogActions>
+                </DialogTitle>
+            </Dialog>
         </AuthContext.Provider>
     );
 }

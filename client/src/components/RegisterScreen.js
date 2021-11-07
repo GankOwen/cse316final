@@ -19,7 +19,9 @@ export default function RegisterScreen() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        //console.log(event.currentTarget)
         const formData = new FormData(event.currentTarget);
+        //console.log(formData)
         auth.registerUser({
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
