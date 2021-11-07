@@ -19,7 +19,7 @@ function WorkspaceScreen() {
                 {
                     store.currentList.items.map((item, index) => (
                         <Top5Item 
-                            key={'top5-item-' + (index+1)}
+                            key={'top5-item-' + (index+1) + item}
                             text={item}
                             index={index} 
                         />

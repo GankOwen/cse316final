@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteModal from './DeleteModal';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -19,6 +20,7 @@ function ListCard(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair } = props;
+    const [open, setOpen] = useState(false);
 
     function handleLoadList(event, id) {
         if (!event.target.disabled) {
@@ -43,6 +45,7 @@ function ListCard(props) {
     async function handleDeleteList(event, id) {
         event.stopPropagation();
         store.markListForDeletion(id);
+        setOpen(true);
     }
 
     function handleKeyPress(event) {
@@ -53,6 +56,28 @@ function ListCard(props) {
         }
     }
     function handleUpdateText(event) {
+        setText(event.target.value);
+    }
+
+    function handleClose (event){
+        event.stopPropagation();
+        setOpen(false);
+        store.unmarkListForDeletion();
+    }
+
+    function handleCloseConfirm(event){
+        event.stopPropagation();
+        setOpen(false);
+        store.deleteMarkedList();
+    }
+
+    function handleBlur(event){
+        let id = event.target.id.substring("list-".length);
+        store.changeListName(id,text);
+        toggleEdit();
+    }
+
+    function handleUpdateText(event){
         setText(event.target.value);
     }
 
@@ -84,6 +109,7 @@ function ListCard(props) {
                         <DeleteIcon style={{fontSize:'48pt'}} />
                     </IconButton>
                 </Box>
+                <DeleteModal open = {open} close = {handleClose} name = {idNamePair.name} confirm = {handleCloseConfirm}/>
         </ListItem>
 
     if (editActive) {
@@ -99,6 +125,7 @@ function ListCard(props) {
                 className='list-card'
                 onKeyPress={handleKeyPress}
                 onChange={handleUpdateText}
+                onBlur = {handleBlur}
                 defaultValue={idNamePair.name}
                 inputProps={{style: {fontSize: 48}}}
                 InputLabelProps={{style: {fontSize: 24}}}

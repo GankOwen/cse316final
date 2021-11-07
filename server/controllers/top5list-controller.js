@@ -63,13 +63,13 @@ updateTop5List = async (req, res) => {
                     message: 'Top 5 List updated!',
                 })
             })
-            .catch(error => {
-                console.log("FAILURE: " + JSON.stringify(error));
-                return res.status(404).json({
-                    error,
-                    message: 'Top 5 List not updated!',
-                })
-            })
+            // .catch(error => {
+            //     console.log("FAILURE: " + JSON.stringify(error));
+            //     return res.status(404).json({
+            //         error,
+            //         message: 'Top 5 List not updated!',
+            //     })
+            // })
     })
 }
 
@@ -126,7 +126,8 @@ getTop5ListPairs = async (req, res) => {
                 let list = top5Lists[key];
                 let pair = {
                     _id: list._id,
-                    name: list.name
+                    name: list.name,
+                    ownerEmail: list.ownerEmail
                 };
                 pairs.push(pair);
             }
