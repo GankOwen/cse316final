@@ -80,7 +80,7 @@ export default function AppBanner() {
         }
     }
     
-    function getAccountMenu(loggedIn) {
+    function getAccountInitial(loggedIn) {
         if(loggedIn){
             return auth.user.firstName.charAt(0).toUpperCase()+ auth.user.lastName.charAt(0).toUpperCase();
         }else{
@@ -111,7 +111,7 @@ export default function AppBanner() {
                             onClick={handleProfileMenuOpen}
                             color="inherit"
                         >
-                            { getAccountMenu(auth.loggedIn) }
+                            { getAccountInitial(auth.loggedIn) }
                         </IconButton>
                     </Box>
                 </Toolbar>
