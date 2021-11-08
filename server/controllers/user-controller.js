@@ -141,7 +141,6 @@ registerUser = async (req, res) => {
                 }
             }).send();
         } catch (err) {
-            console.error("Here is err",err, err.errorMessage);
             res.status(500).send();
         }
     }
