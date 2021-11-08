@@ -45,7 +45,6 @@ registerUser = async (req, res) => {
         }
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
-            console.log("error: account exist2")
             return res
                 .status(201)
                 .json({
