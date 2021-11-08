@@ -187,7 +187,8 @@ function GlobalStoreContextProvider(props) {
                         async function getListPairs(top5List) {
                             response = await api.getTop5ListPairs();
                             if (response.data.success) {
-                                let pairsArray = response.data.idNamePairs;
+                                let pairsArrayOfDB = response.data.idNamePairs;
+                                let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
                                 storeReducer({
                                     type: GlobalStoreActionType.CHANGE_LIST_NAME,
                                     payload: {

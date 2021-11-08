@@ -34,20 +34,19 @@ function EditToolbar() {
         editStatus = true;
     }
     
-    if(store.isListNameEditActive){
-        editStatus = true;
-    }
+
+    
 
     
 
     return (
         <div id="edit-toolbar">
-            {ifHaveUndo ? 
+            {ifHaveUndo() ? 
             <Button 
                 id='undo-button'
                 onClick={handleUndo}
                 variant="contained"
-                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}>
+                className = {store.isItemEditActive ?  "top5-button-disabled" : "top5-button"}>
                     <UndoIcon />
             </Button>
             :
@@ -59,13 +58,13 @@ function EditToolbar() {
                     <UndoIcon />
             </Button>}
             
-            {ifHaveRedo ? 
+            {ifHaveRedo() ? 
             <Button 
                 id='redo-button'
                 onClick={handleRedo}
                 variant="contained"
-                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}>
-                    <UndoIcon />
+                className = {store.isItemEditActive ? "top5-button-disabled" : "top5-button"}>
+                    <RedoIcon />
             </Button>
             :
             <Button 
@@ -73,14 +72,14 @@ function EditToolbar() {
                 onClick={handleRedo}
                 variant="contained"
                 className = "top5-button-disabled">
-                    <UndoIcon />
+                    <RedoIcon />
             </Button>}
 
             <Button 
                 disabled={editStatus}
                 id='close-button'
                 onClick={handleClose}
-                className = {store.isListNameEditActive ? "top5-button" : "top5-button-disabled"}
+                className = {store.isItemEditActive ?  "top5-button-disabled" : "top5-button"}
                 variant="contained">
                     <CloseIcon />
             </Button>
