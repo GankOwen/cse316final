@@ -114,7 +114,6 @@ registerUser = async (req, res) => {
                         errorMessage: "The account does not exist"
                     });
             }
-            console.log("password check ", existingUser.passwordCheck, " ", password);
             var passwordCheck = await bcrypt.compare(password,existingUser.passwordHash);
             
             if(!passwordCheck){
