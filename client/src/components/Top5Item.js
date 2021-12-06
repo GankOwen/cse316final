@@ -17,6 +17,8 @@ function Top5Item(props) {
     const [draggedTo, setDraggedTo] = useState(0);
     const [text, setText] = useState(props.text);
 
+    const ifAdding = props.ifAdding;
+
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
     }
@@ -74,6 +76,11 @@ function Top5Item(props) {
         setText(event.target.value);
     }
 
+    function handleItemChange(event){
+        store.currentList.items[props.index] = event.target.value;
+        setText(event.target.value);
+    }
+
     let { index } = props;
 
 
@@ -82,8 +89,22 @@ function Top5Item(props) {
         itemClass = "top5-item-dragged-to";
     }
     let returnItem = null;
-    if(editActive){
         returnItem = 
+        <div
+            id={'item-' + (index+1)}
+            className={itemClass}
+            sx={{ display: 'flex', p: 1 }}
+            style={{
+                fontSize: '24pt',
+                width: '100%'
+            }}
+        >
+                <Box sx={{ p: 1, flexGrow: 1 }}
+                        >{index+1}. {props.text}</Box>
+        </div>
+
+        if(ifAdding){
+            returnItem = 
             <TextField
                 margin="normal"
                 required
@@ -93,49 +114,16 @@ function Top5Item(props) {
                 name="name"
                 autoComplete="Top 5 List Name"
                 className='list-card'
-                onKeyPress={handleKeyPress}
-                onBlur = {handleBlur}
-                onChange={(ev)=>setText(ev.target.value)}
+                onKeyPress={handleItemChange}
+                onBlur = {handleItemChange}
+                onChange={(event)=>setText(event.target.value)}
                 defaultValue={text}
-                inputProps={{style: {fontSize: 48}}}
+                inputProps={{style: {fontSize: 20}}}
                 InputLabelProps={{style: {fontSize: 24}}}
                 autoFocus
             />
-    }else{
-        returnItem = 
-        <ListItem
-        id={'item-' + (index+1)}
-        className={itemClass}
-        onDragStart={(event) => {
-            handleDragStart(event, (index+1))
-        }}
-        onDragOver={(event) => {
-            handleDragOver(event, (index+1))
-        }}
-        onDragEnter={(event) => {
-            handleDragEnter(event, (index+1))
-        }}
-        onDragLeave={(event) => {
-            handleDragLeave(event, (index+1))
-        }}
-        onDrop={(event) => {
-            handleDrop(event, (index+1))
-        }}
-        draggable="true"
-        sx={{ display: 'flex', p: 1 }}
-        style={{
-            fontSize: '48pt',
-            width: '100%'
-        }}
-    >
-        <Box sx={{ p: 1 }}>
-            <IconButton onClick = {handleToggleEdit} aria-label='edit'>
-                <EditIcon style={{fontSize:'48pt'}}  />
-            </IconButton>
-        </Box>
-            <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
-    </ListItem>
-    }
+        }
+    
     
 
     return (

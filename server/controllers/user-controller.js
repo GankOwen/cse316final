@@ -1,8 +1,10 @@
 const auth = require('../auth')
 const User = require('../models/user-model')
 const bcrypt = require('bcryptjs')
+//const { updateUserById } = require('../../client/src/api')
 
 getLoggedIn = async (req, res) => {
+    console.log("123",loggedInUser);
     auth.verify(req, res, async function () {
         const loggedInUser = await User.findOne({ _id: req.userId });
         return res.status(200).json({
@@ -10,10 +12,67 @@ getLoggedIn = async (req, res) => {
             user: {
                 firstName: loggedInUser.firstName,
                 lastName: loggedInUser.lastName,
-                email: loggedInUser.email
+                email: loggedInUser.email,
+                id: loggedInUser._id
             }
         }).send();
     })
+}
+
+getUserById = async (req, res) => {
+    console.log("4444")
+    await User.findById({ _id: req.params.id }, (err, User) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err });
+        }
+        return res.status(200).json({ success: true, returnUser : User })
+    }).catch(err => console.log(err))
+}
+
+updateUserById = async (req,res) =>{
+    
+    const body = req.body
+    console.log("updateUser: " + JSON.stringify(body));
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a body to update',
+        })
+    }
+
+    User.findOne({ _id: req.params.id }, (err, user) => {
+        console.log("User found: " + JSON.stringify(user));
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'User not found!',
+            })
+        }
+
+        user.likeLists = body.likeLists
+        user.dislikeLists = body.dislikeLists
+
+        console.log("body1111",body)
+
+        user
+            .save()
+            .then(() => {
+                console.log("SUCCESS!!!");
+                return res.status(200).json({
+                    success: true,
+                    id: user._id,
+                    message: 'User updated!',
+                })
+            })
+            .catch(error => {
+                console.log("FAILURE: " + JSON.stringify(error));
+                return res.status(404).json({
+                    error,
+                    message: 'User not updated!',
+                })
+            })
+    })
+
 }
 
 registerUser = async (req, res) => {
@@ -73,7 +132,9 @@ registerUser = async (req, res) => {
             user: {
                 firstName: savedUser.firstName,
                 lastName: savedUser.lastName,
-                email: savedUser.email
+                email: savedUser.email,
+                likeLists : savedUser.likeLists,
+                dislikeLists : savedUser.dislikeLists 
             }
         }).send();
     } catch (err) {
@@ -89,6 +150,7 @@ registerUser = async (req, res) => {
     // piazza bitcyph plaint password
     // if match the password return user and set the user auth (200) 
     logInUser = async (req, res) => {
+        console.log("1234")
         try {
             const {email, password} = req.body;
             if (!email || !password) {
@@ -126,7 +188,7 @@ registerUser = async (req, res) => {
     
             // LOGIN THE USER
             const token = auth.signToken(existingUser);
-    
+            console.log(existingUser);
             await res.cookie("token", token, {
                 httpOnly: true,
                 secure: true,
@@ -136,7 +198,8 @@ registerUser = async (req, res) => {
                 user: {
                     firstName: existingUser.firstName,
                     lastName: existingUser.lastName,
-                    email: existingUser.email
+                    email: existingUser.email,
+                    id: existingUser._id
                 }
             }).send();
         } catch (err) {
@@ -146,5 +209,7 @@ registerUser = async (req, res) => {
 module.exports = {
     getLoggedIn,
     registerUser,
-    logInUser
+    logInUser,
+    updateUserById,
+    getUserById
 }

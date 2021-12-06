@@ -1,10 +1,11 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
 import MoveItem_Transaction from '../transactions/MoveItem_Transaction'
 import UpdateItem_Transaction from '../transactions/UpdateItem_Transaction'
-import AuthContext from '../auth'
+import AuthContext from '../auth';
+
 /*
     This is our global data store. Note that it uses the Flux design pattern,
     which makes use of things like actions and reducers. 
@@ -27,7 +28,8 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
-    CHANGE_ITEM_NAME: "CHANGE_ITEM_NAME"
+    CHANGE_ITEM_NAME: "CHANGE_ITEM_NAME",
+    PUBLISH_COMMENT:"PUBLISH_COMMENT"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -43,7 +45,10 @@ function GlobalStoreContextProvider(props) {
         newListCounter: 0,
         listNameActive: false,
         itemActive: false,
-        listMarkedForDeletion: null
+        listMarkedForDeletion: null,
+        homePage: true,
+        allListPage:false,
+        userListPage: false
     });
     const history = useHistory();
 
@@ -60,6 +65,16 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     idNamePairs: payload.idNamePairs,
                     currentList: null,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
+            case GlobalStoreActionType.PUBLISH_COMMENT: {
+                return setStore({
+                    idNamePairs: payload.idNamePairs,
+                    currentList: payload.top5List,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -211,7 +226,7 @@ function GlobalStoreContextProvider(props) {
             let response = await api.getTop5ListById(id);
             if(response.data.success){
                 let top5List = response.data.top5List;
-                if(auth.iser.email === top5List.ownerEmail){
+                if(auth.user.email === top5List.ownerEmail){
                     top5List.items[index] = newName;
                     async function updateList(top5List){
                         response = await api.updateTop5ListById(top5List._id, top5List);
@@ -240,6 +255,221 @@ function GlobalStoreContextProvider(props) {
         asyncChangeListName(id);
     }
 
+    // store.getComments = function(id){
+    //     async function asyncLoadComment(id){
+
+    //     }
+    //     asyncLoadComment
+    // }
+
+
+
+
+    store.increaseLikeNumber = function(id){
+        async function asyncIncreaseLikeNumber(id){         
+            let response = await api.getTop5ListById(id);
+            if(response.data.success){
+                let top5List = response.data.top5List;
+                if(auth.user.email === top5List.ownerEmail){
+                    if(top5List.userLikeList.indexOf(auth.user.email)===-1 && top5List.userDislikeList.indexOf(auth.user.email)===-1){
+                        top5List.userLikeList.push(auth.user.email);
+                        top5List.likeNumber = top5List.likeNumber +1;
+                        async function updateList(top5List){
+                            response = await api.updateTop5ListById(top5List._id, top5List);
+                            if(response.data.success){
+                                async function getListPairs(top5List){
+                                    response = await api.getTop5ListPairs();
+                                    if(response.data.success){
+                                        let pairsArrayOfDB = response.data.idNamePairs;
+                                        let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                        storeReducer({
+                                            type:GlobalStoreActionType.CHANGE_ITEM_NAME,
+                                            payload: {
+                                                idNamePairs : pairsArray,
+                                                top5List: top5List
+                                            }
+                                        });
+                                    }
+                                }
+                                getListPairs(top5List);
+                            }
+                        }
+                        updateList(top5List);
+                    }else if(top5List.userDislikeList.indexOf(auth.user.email)!==-1 && top5List.userLikeList.indexOf(auth.user.email)===-1){
+                        top5List.userDislikeList.splice(top5List.userDislikeList.indexOf(auth.user.email), 1);
+                        top5List.userLikeList.push(auth.user.email);
+                        top5List.dislikeNumber = top5List.dislikeNumber -1;
+                        top5List.likeNumber = top5List.likeNumber +1;
+                        async function updateList(top5List){
+                            response = await api.updateTop5ListById(top5List._id, top5List);
+                            if(response.data.success){
+                                async function getListPairs(top5List){
+                                    response = await api.getTop5ListPairs();
+                                    if(response.data.success){
+                                        let pairsArrayOfDB = response.data.idNamePairs;
+                                        let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                        storeReducer({
+                                            type:GlobalStoreActionType.CHANGE_ITEM_NAME,
+                                            payload: {
+                                                idNamePairs : pairsArray,
+                                                top5List: top5List
+                                            }
+                                        });
+                                    }
+                                }
+                                getListPairs(top5List);
+                            }
+                        }
+                        updateList(top5List);
+                    }
+                }
+            }
+        }
+        asyncIncreaseLikeNumber(id);
+    }
+
+
+    store.decreaseLikeNumber = function(id){
+        async function asyncDecreaseLikeNumber(id){         
+            let response = await api.getTop5ListById(id);
+            if(response.data.success){
+                let top5List = response.data.top5List;
+                if(auth.user.email === top5List.ownerEmail){
+                    if(top5List.userDislikeList.indexOf(auth.user.email)===-1 && top5List.userLikeList.indexOf(auth.user.email)===-1){
+                        top5List.userDislikeList.push(auth.user.email);
+                        top5List.dislikeNumber = top5List.dislikeNumber +1;
+                        async function updateList(top5List){
+                            response = await api.updateTop5ListById(top5List._id, top5List);
+                            if(response.data.success){
+                                async function getListPairs(top5List){
+                                    response = await api.getTop5ListPairs();
+                                    if(response.data.success){
+                                        let pairsArrayOfDB = response.data.idNamePairs;
+                                        let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                        storeReducer({
+                                            type:GlobalStoreActionType.CHANGE_ITEM_NAME,
+                                            payload: {
+                                                idNamePairs : pairsArray,
+                                                top5List: top5List
+                                            }
+                                        });
+                                    }
+                                }
+                                getListPairs(top5List);
+                            }
+                        }
+                        updateList(top5List);
+                    }else if(top5List.userLikeList.indexOf(auth.user.email)!==-1 && top5List.userDislikeList.indexOf(auth.user.email)===-1){
+                        top5List.userLikeList.splice(top5List.userLikeList.indexOf(auth.user.email), 1);
+                        top5List.userDislikeList.push(auth.user.email);
+                        top5List.likeNumber = top5List.likeNumber -1;
+                        top5List.dislikeNumber = top5List.dislikeNumber +1;
+                        async function updateList(top5List){
+                            response = await api.updateTop5ListById(top5List._id, top5List);
+                            if(response.data.success){
+                                async function getListPairs(top5List){
+                                    response = await api.getTop5ListPairs();
+                                    if(response.data.success){
+                                        let pairsArrayOfDB = response.data.idNamePairs;
+                                        let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                        storeReducer({
+                                            type:GlobalStoreActionType.CHANGE_ITEM_NAME,
+                                            payload: {
+                                                idNamePairs : pairsArray,
+                                                top5List: top5List
+                                            }
+                                        });
+                                    }
+                                }
+                                getListPairs(top5List);
+                            }
+                        }
+                        updateList(top5List);
+                    }
+                }
+            }
+        }
+        asyncDecreaseLikeNumber(id);
+    }
+
+    useEffect(()=> {console.log("store current:", store.currentList)},[store]);
+
+    store.publishComment = async function (id, commentAuthor, comment){
+        let response = await api.getTop5ListById(id);
+        if(response.data.success){
+            let top5List = response.data.top5List;
+            top5List.comments.push(comment);
+            top5List.commentAuthors.push(commentAuthor);
+            async function updateList(top5List){
+                response = await api.updateTop5ListById(top5List._id, top5List);
+                if (response.data.success) {
+                    async function getListPairs(top5List) {
+                        response = await api.getTop5ListPairs();
+                        if (response.data.success) {
+                            console.log("check 1:", top5List)
+                            let pairsArrayOfDB = response.data.idNamePairs;
+                            let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                            storeReducer({
+                                type: GlobalStoreActionType.PUBLISH_COMMENT,
+                                payload: {
+                                    idNamePairs: pairsArray,
+                                    top5List: top5List
+                                }
+                            });
+                        }
+                    }
+                    getListPairs(top5List);
+                }
+            }
+            updateList(top5List);
+        }
+    }
+
+
+
+
+
+    store.increaseViewNumber = function(id){
+        async function asyncChangeListName(id){
+            let response = await api.getTop5ListById(id);
+            if(response.data.success){
+                let top5List = response.data.top5List;
+                if(auth.user.email === top5List.ownerEmail){
+                    top5List.viewNumber = top5List.viewNumber + 1;
+                    async function updateList(top5List){
+                        response = await api.updateTop5ListById(top5List._id, top5List);
+                        if(response.data.success){
+                            async function getListPairs(top5List){
+                                response = await api.getTop5ListPairs();
+                                if(response.data.success){
+                                    let pairsArrayOfDB = response.data.idNamePairs;
+                                    let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                    storeReducer({
+                                        type:GlobalStoreActionType.CHANGE_ITEM_NAME,
+                                        payload: {
+                                            idNamePairs : pairsArray,
+                                            top5List: top5List
+                                        }
+                                    });
+                                }
+                            }
+                            getListPairs(top5List);
+                        }
+                    }
+                    updateList(top5List);
+                }
+            }
+        }
+        asyncChangeListName(id);
+        history.push(0)
+    }
+
+
+    
+
+
+
+
     function filterEmailForUser(list){
         if(list.ownerEmail === auth.user.email){
             return true;
@@ -255,7 +485,7 @@ function GlobalStoreContextProvider(props) {
         });
         
         tps.clearAllTransactions();
-        history.push("/");
+        history.push(0);
     }
 
     // THIS FUNCTION CREATES A NEW LIST
@@ -264,12 +494,20 @@ function GlobalStoreContextProvider(props) {
         let payload = {
             name: newListName,
             items: ["?", "?", "?", "?", "?"],
-            ownerEmail: auth.user.email
+            ownerEmail: auth.user.email,
+            author: (auth.user.firstName + " "+ auth.user.lastName),
+            likeNumber : 0,
+            dislikeNumber : 0,
+            ifPublished: false,
+            viewNumber: 0,
+            ifLike: false,
+            ifDislike: false
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
             tps.clearAllTransactions();
             let newList = response.data.top5List;
+            console.log(auth.user);
             storeReducer({
                 type: GlobalStoreActionType.CREATE_NEW_LIST,
                 payload: newList
@@ -277,7 +515,7 @@ function GlobalStoreContextProvider(props) {
             );
 
             // IF IT'S A VALID LIST THEN LET'S START EDITING IT
-            history.push("/top5list/" + newList._id);
+            history.push(0);
         }
         else {
             console.log("API FAILED TO CREATE A NEW LIST");
@@ -299,6 +537,7 @@ function GlobalStoreContextProvider(props) {
             console.log("API FAILED TO GET THE LIST PAIRS");
         }
     }
+
 
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
@@ -352,7 +591,7 @@ function GlobalStoreContextProvider(props) {
                         type: GlobalStoreActionType.SET_CURRENT_LIST,
                         payload: top5List
                     });
-                    history.push("/top5list/" + top5List._id);
+                    history.push(0);
                 }
             }
         }

@@ -14,4 +14,6 @@ router.get('/top5listpairs', auth.verify, Top5ListController.getTop5ListPairs)
 router.post('/register', UserController.registerUser)
 router.post('/login/', UserController.logInUser)
 router.get('/loggedIn', UserController.getLoggedIn)
+router.put('/updateuser/:id', UserController.updateUserById)
+router.get('/getuser/:id', UserController.getUserById)
 module.exports = router

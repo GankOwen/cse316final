@@ -9,7 +9,8 @@ import {
     RegisterScreen,
     Statusbar,
     WorkspaceScreen,
-    LogInScreen
+    LogInScreen,
+    BackGroundPage
 } from './components'
 /*
     This is our application's top-level component.
@@ -28,14 +29,15 @@ const App = () => {
             <AuthContextProvider>
                 <GlobalStoreContextProvider>              
                     <AppBanner />
-                    <Switch>
-                        <Route path="/" exact component={HomeWrapper} />
-                        <Route path="/register/" exact component={RegisterScreen} />
-                        <Route path="/login/" exact component={LogInScreen}/>
-                        <Route path="/top5list/:id" exact component={WorkspaceScreen} />
-                        
-                    </Switch>
-                    <Statusbar />
+                    
+                        <Switch>
+                            <Route path="/" exact component={HomeWrapper} />
+                            <Route path="/register/" exact component={RegisterScreen} />
+                            <Route path="/login/" exact component={LogInScreen}/>
+                            <Route path="/top5list/:id" exact component={WorkspaceScreen} />                               
+                        </Switch>
+                    
+                    {/* <Statusbar /> */}
                 </GlobalStoreContextProvider>
             </AuthContextProvider>
         </BrowserRouter>

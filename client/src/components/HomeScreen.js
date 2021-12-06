@@ -1,9 +1,11 @@
 import React, { useContext, useEffect } from 'react'
 import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
-import { Fab, Typography } from '@mui/material'
+import { Fab, TextField, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import List from '@mui/material/List';
+import Icons from '../icons/'
+import BackGroundPage from './BackGroundPage';
 /*
     This React component lists all the top5 lists in the UI.
     
@@ -22,7 +24,7 @@ const HomeScreen = () => {
     let listCard = "";
     if (store) {
         listCard = 
-            <List sx={{ width: '90%', left: '5%', bgcolor: 'background.paper' }}>
+            <List sx={{ width: '90%', left: '5%', bgcolor: 'background.paper'}}>
             {
                 store.idNamePairs.map((pair) => (
                     <ListCard
@@ -30,29 +32,14 @@ const HomeScreen = () => {
                         idNamePair={pair}
                         selected={false}
                     />
+                    
                 ))
             }
             </List>;
     }
     return (
-        <div id="top5-list-selector">
-            <div id="list-selector-heading">
-            <Fab 
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-            >
-                <AddIcon />
-            </Fab>
-                <Typography variant="h2">Your Lists</Typography>
-            </div>
-            <div id="list-selector-list">
-                {
-                    listCard
-                }
-            </div>
-        </div>)
+        <BackGroundPage/>       
+        )
 }
 
 export default HomeScreen;
