@@ -520,12 +520,6 @@ function GlobalStoreContextProvider(props) {
         history.push(0)
     }
 
-
-    
-
-
-
-
     function filterEmailForUser(list){
         if(list.ownerEmail === auth.user.email){
             return true;
@@ -719,6 +713,8 @@ function GlobalStoreContextProvider(props) {
                 payload: store.currentList
             });
         }
+        store.loadIdNamePairs();
+        history.push(0);
     }
 
     store.undo = function () {

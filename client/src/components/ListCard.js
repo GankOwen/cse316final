@@ -61,7 +61,10 @@ function ListCard(props) {
     function handleCloseList(){
         store.updateCurrentList();
         store.closeCurrentList();
-        store.loadIdNamePairs()
+    }
+
+    async function handlePublishClose(){
+
     }
 
     function handleKeyPress(event) {
@@ -122,7 +125,7 @@ function ListCard(props) {
     }
 
     function handleUpdateText(event){
-        setText(event.target.value);
+        idNamePair.name = event.target.value;
     }
     if (store.currentList) {
         //console.log("check current",store.currentList);
@@ -394,7 +397,7 @@ function ListCard(props) {
                     style = {{width : "100%"}}
                     onChange = {(event)=>setText(event.target.value)}
                     onKeyPress = {handleUpdateText}
-                    value = {idNamePair.name}
+                    defaultValue = {idNamePair.name}
                     ></input>
                 <div
                     style = {{display : "flex", flexDirection : "row"}}>
