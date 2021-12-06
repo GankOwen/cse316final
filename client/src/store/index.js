@@ -29,7 +29,8 @@ export const GlobalStoreActionType = {
     SET_ITEM_EDIT_ACTIVE: "SET_ITEM_EDIT_ACTIVE",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     CHANGE_ITEM_NAME: "CHANGE_ITEM_NAME",
-    PUBLISH_COMMENT:"PUBLISH_COMMENT"
+    PUBLISH_COMMENT:"PUBLISH_COMMENT",
+    LOAD_ALL_ID_NAME_PAIRS: "LOAD_ALL_ID_NAME_PAIRS"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -114,11 +115,22 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null
                 });
             }
+
+            case GlobalStoreActionType.LOAD_ALL_ID_NAME_PAIRS: {
+                return setStore({
+                    idNamePairs: payload,
+                    currentList: null,
+                    newListCounter: store.newListCounter,
+                    isListNameEditActive: false,
+                    isItemEditActive: false,
+                    listMarkedForDeletion: null
+                });
+            }
             // PREPARE TO DELETE A LIST
             case GlobalStoreActionType.MARK_LIST_FOR_DELETION: {
                 return setStore({
                     idNamePairs: store.idNamePairs,
-                    currentList: null,
+                    currentList: store.currentList,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -144,7 +156,7 @@ function GlobalStoreContextProvider(props) {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null
+                    listMarkedForDeletion: store.listMarkedForDeletion
                 });
             }
             // START EDITING A LIST ITEM
@@ -220,6 +232,54 @@ function GlobalStoreContextProvider(props) {
             }
         }
     }
+
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+
+    store.publishList = async function (id,name, items) {
+        let response = await api.getTop5ListById(id);
+        if (response.data.success) {
+            let top5List = response.data.top5List;
+            if(auth.user.email === top5List.ownerEmail){
+                top5List.name = name;
+                top5List.items = items;
+                top5List.ifPublished = true;
+                var today = new Date();
+                var dd = String(today.getDate());
+                var mm = String(monthNames[today.getMonth()]);
+                var yyyy = today.getFullYear();
+
+                today = mm + '/' + dd + '/' + yyyy;
+
+                top5List.date = today
+
+                async function updateList(top5List) {
+                    response = await api.updateTop5ListById(top5List._id, top5List);
+                    if (response.data.success) {
+                        async function getListPairs(top5List) {
+                            response = await api.getTop5ListPairs();
+                            if (response.data.success) {
+                                let pairsArrayOfDB = response.data.idNamePairs;
+                                let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                                storeReducer({
+                                    type: GlobalStoreActionType.CHANGE_LIST_NAME,
+                                    payload: {
+                                        idNamePairs: pairsArray,
+                                        top5List: top5List
+                                    }
+                                });
+                            }
+                        }
+                        getListPairs(top5List);
+                    }
+                }
+                updateList(top5List);
+            }
+        }
+    }
+
+
+
 
     store.changeItemName = function(id, newName, index){
         async function asyncChangeListName(id){
@@ -392,7 +452,7 @@ function GlobalStoreContextProvider(props) {
         asyncDecreaseLikeNumber(id);
     }
 
-    useEffect(()=> {console.log("store current:", store.currentList)},[store]);
+    useEffect(()=> {console.log("store deleteMakr:", store.deleteMarkedList)},[store]);
 
     store.publishComment = async function (id, commentAuthor, comment){
         let response = await api.getTop5ListById(id);
@@ -424,10 +484,6 @@ function GlobalStoreContextProvider(props) {
             updateList(top5List);
         }
     }
-
-
-
-
 
     store.increaseViewNumber = function(id){
         async function asyncChangeListName(id){
@@ -485,6 +541,8 @@ function GlobalStoreContextProvider(props) {
         });
         
         tps.clearAllTransactions();
+        console.log("close list")
+        store.loadIdNamePairs();
         history.push(0);
     }
 
@@ -522,6 +580,20 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
+    store.loadAllUserIdNamePairs = async function (){
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+            storeReducer({
+                type: GlobalStoreActionType.LOAD_All_ID_NAME_PAIRS,
+                payload: pairsArrayOfDB
+            });
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = async function () {
         const response = await api.getTop5ListPairs();
@@ -545,9 +617,12 @@ function GlobalStoreContextProvider(props) {
     // showDeleteListModal, and hideDeleteListModal
     store.markListForDeletion = async function (id) {
         // GET THE LIST
+        console.log("prepare:",id);
         let response = await api.getTop5ListById(id);
+        
         if (response.data.success) {
             let top5List = response.data.top5List;
+            console.log("success",top5List);
             storeReducer({
                 type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
                 payload: top5List
@@ -564,6 +639,7 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.deleteMarkedList = function () {
+        console.log("check4: ", store.listMarkedForDeletion)
         if(auth.user.email===store.listMarkedForDeletion.ownerEmail){
             store.deleteList(store.listMarkedForDeletion);
         }

@@ -8,14 +8,18 @@ import List from '@mui/material/List';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton  from '@mui/material/IconButton';
 import SortIcon from '@mui/icons-material/Sort';
+import AuthContext from '../auth';
+
 
 export default function BackGroundPage(){
     const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
     const [anchorEl, setAnchorEl] = useState(null);
     const ifMenuOpen = Boolean(anchorEl);
 
     const [ifAdding, setIfAdding] = useState(false);
 
+    console.log("check idNamePairs: ",store.idNamePairs, " ",JSON.stringify(store.idNamePairs))
     useEffect(() => {
          store.loadIdNamePairs();
     }, []);
@@ -50,6 +54,22 @@ export default function BackGroundPage(){
         handleMenuClose()
     }
 
+    function handleHomeClick (){
+        auth.swapHomeScreen();
+    }
+
+    function handleAllUserClick (){
+        auth.swapAllUserScreen();
+    }
+
+    function handleSingleUserClick(){
+        auth.swapSingleUserScreen();
+    }
+
+    function handleCommunityClick(){
+        auth.swapCommunityScreen();
+    }
+
     const menuId = 'sort-list-menu';
 
     const SortMenu = (
@@ -79,7 +99,9 @@ export default function BackGroundPage(){
 
     var lists = "";
     if(store){
+        console.log("check in store")
         if(ifAdding && store.currentList){
+            
             lists = 
             <List sx = {{width: '90%', left: '5%', bgcolor: 'background.paper'}}>
                 {
@@ -117,29 +139,39 @@ export default function BackGroundPage(){
                         style = {{position : 'relative'}}>
                         <div id = "top5-list-topbar"
                             style = {{position : 'absolute', top : '0'}}>
-                            <img src = {Icons.icon_home}
-                                style = {{width : "5%",height : "100%", marginLeft:"1%"}}
-                                >
-                            
-                            </img>
 
-                            <img src = {Icons.icon_group}
-                                style = {{width : "5%",height : "100%", marginLeft:"1%"}}
-                                >
-                            
-                            </img>
+                            <div style ={{backgroundColor : (auth.page==="home")? "#8C9289" : "transparent", width : "5%",height : "100%", marginLeft:"1%"}}
+                                    onClick = {handleHomeClick}>
+                                <img src = {Icons.icon_home}
+                                    style = {{width : "80%",height : "80%", marginLeft:"1%"}}
+                                    >
+                                
+                                </img>
+                            </div>
 
-                            <img src = {Icons.icon_user}
-                                style = {{width : "5%",height : "100%", marginLeft:"1%"}}
-                                >
-                            
-                            </img>
+                            <div style ={{backgroundColor : (auth.page==="all user")? "#8C9289" : "transparent", width : "5%",height : "100%", marginLeft:"1%"}}
+                                    onClick = {handleAllUserClick}>
+                                <img src = {Icons.icon_group}
+                                    style = {{width : "80%",height : "80%", marginLeft:"1%"}}
+                                > 
+                                </img>
+                            </div>
 
-                            <img src = {Icons.icon_community}
-                                style = {{width : "5%",height : "100%", marginLeft:"1%"}}
-                                >
+                            <div style = {{backgroundColor : (auth.page==="single user")? "#8C9289" : "transparent", width : "5%",height : "100%", marginLeft:"1%"}}
+                                    onClick = {handleSingleUserClick}>
+                                <img src = {Icons.icon_user}
+                                    style = {{width : "80%",height : "80%", marginLeft:"1%"}}>
+                                
+                                </img>
+                            </div>
                             
-                            </img>
+                            <div style = {{backgroundColor : (auth.page==="community")? "#8C9289" : "transparent", width : "5%",height : "100%", marginLeft:"1%"}}
+                                    onClick = {handleCommunityClick}>
+                                <img src = {Icons.icon_community}
+                                    style = {{width : "80%",height : "80%", marginLeft:"1%"}}
+                                    >
+                                </img>
+                            </div>
                             <input style = {{width:"35%", height : "100%", marginLeft: "10%"}}
                                 id = "top5_lister_search_bar"
                                 type = "text"

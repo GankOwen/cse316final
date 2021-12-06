@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -13,7 +13,7 @@ import CommentItem from './CommentItem'
 import List from '@mui/material/List';
 import { width } from '@mui/system';
 import { Typography } from '@mui/material';
-import AuthContext from '../auth';;
+import AuthContext from '../auth';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -57,15 +57,11 @@ function ListCard(props) {
         setEditActive(newActive);
     }
 
-    async function handleDeleteList(event, id) {
-        event.stopPropagation();
-        store.markListForDeletion(id);
-        setOpen(true);
-    }
 
     function handleCloseList(){
         store.updateCurrentList();
         store.closeCurrentList();
+        store.loadIdNamePairs()
     }
 
     function handleKeyPress(event) {
@@ -82,26 +78,41 @@ function ListCard(props) {
         console.log("check1 ", event.target.value," ", store.currentList)
     }
 
-    function handleClose (event){
+    function handleClose (event, id){
         event.stopPropagation();
         setOpen(false);
         store.unmarkListForDeletion();
+        store.setCurrentList(id);
     }
 
     function handleCloseConfirm(event){
         event.stopPropagation();
         setOpen(false);
+        console.log("check3: ", store.markListForDeletion)
         store.deleteMarkedList();
     }
 
+    async function handleDeleteList(event, id) {
+        event.stopPropagation();
+        
+        store.markListForDeletion(id);
+        //store.setCurrentList(id);
+        console.log("check1: ", id)
+        console.log("check2: ", store.markListForDeletion)
+        setOpen(true);
+    }
+
     function handleBlur(event){
-        // console.log("check1", store.currentList)
-        // //let id = event.target.id.substring("list-".length);
-        // store.currentList.name = event.target.value;
-        // console.log("check2", store.currentList)
-        // toggleEdit();
+        console.log("check1", store.currentList)
+        //let id = event.target.id.substring("list-".length);
+        store.currentList.name = event.target.value;
+        console.log("check2", store.currentList)
+        toggleEdit();
+        console.log(ifAdding);
         
     }
+
+    
 
     function handleNumberOfViewChange(id){
         console.log("view increase ", id)
@@ -130,7 +141,6 @@ function ListCard(props) {
                 }
             </div>;
         
-        console.log(store.currentList.comments);
         var publishedComments =
                 <List id="edit-items" sx={{ width: '95%', bgcolor: 'background.paper', height : "50%", position : 'relative', bgcolor: '#5F6FD8', overflow:'scroll'}}>
                     {
@@ -269,7 +279,8 @@ function ListCard(props) {
                     </div>
                     
                 </div>
-                <DeleteModal open = {open} close = {handleClose} name = {idNamePair.name} confirm = {handleCloseConfirm}/>
+                <DeleteModal open = {open} close = {
+                    (event)=>handleClose(event,idNamePair._id)} name = {idNamePair.name} confirm = {handleCloseConfirm}/>
         </ListItem>
 
     
@@ -367,7 +378,7 @@ function ListCard(props) {
                     
                 </div>
 
-                <DeleteModal open = {open} close = {handleClose} name = {idNamePair.name} confirm = {handleCloseConfirm}/>
+                <DeleteModal open = {open} close = {(event)=>handleClose(event,idNamePair._id)} name = {idNamePair.name} confirm = {handleCloseConfirm}/>
                 
         </ListItem>
             
@@ -381,7 +392,9 @@ function ListCard(props) {
                     type = "text"
                     placeholder = "Put your list name in here"
                     style = {{width : "100%"}}
-                    onBlur = {handleBlur}
+                    onChange = {(event)=>setText(event.target.value)}
+                    onKeyPress = {handleUpdateText}
+                    value = {idNamePair.name}
                     ></input>
                 <div
                     style = {{display : "flex", flexDirection : "row"}}>

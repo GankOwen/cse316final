@@ -11,13 +11,19 @@ export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
     LOGIN_USER: "LOGIN_USER",
-    LOGOUT_USER: "LOGOUT_USER"
+    LOGOUT_USER: "LOGOUT_USER",
+    SWAP_ALL_USER_SCREEN: "SWAP_ALL_USER_SCREEN",
+    SWAP_SINGLE_USER_SCREEN: "SWAP_SINGLE_USER_SCREEN",
+    SWAP_COMMUNITY_SCREEN: "SWAP_COMMUNITY_SCREEN",
+    SWAP_HOME_SCREEN: "SWAP_HOME_SCREEN",
+    SWAP_LOG_OUT_SCREEN: "SWAP_LOG_OUT_SCREEN"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        page: "log out"
     });
     const history = useHistory();
     const [open, setOpen] = useState(false);
@@ -41,6 +47,45 @@ function AuthContextProvider(props) {
     const authReducer = (action) => {
         const { type, payload } = action;
         switch (type) {
+            case AuthActionType.SWAP_ALL_USER_SCREEN:{
+                return setAuth({
+                    user: auth.user,
+                    page: payload.page,
+                    loggedIn : auth.loggedIn
+                });
+            }
+            case AuthActionType.SWAP_SINGLE_USER_SCREEN:{
+                return setAuth({
+                    user: auth.user,
+                    page: payload.page,
+                    loggedIn : auth.loggedIn
+                });
+            }
+
+            case AuthActionType.SWAP_COMMUNITY_SCREEN:{
+                return setAuth({
+                    user: auth.user,
+                    page: payload.page,
+                    loggedIn : auth.loggedIn
+                });
+            }
+
+            case AuthActionType.SWAP_HOME_SCREEN:{
+                return setAuth({
+                    user: auth.user,
+                    page: payload.page,
+                    loggedIn : auth.loggedIn
+                });
+            }
+
+            case AuthActionType.SWAP_LOG_OUT_SCREEN:{
+                return setAuth({
+                    user: auth.user,
+                    page: payload.page,
+                    loggedIn : auth.loggedIn
+                });
+            }
+
             case AuthActionType.GET_LOGGED_IN: {
                 return setAuth({
                     user: payload.user,
@@ -56,13 +101,15 @@ function AuthContextProvider(props) {
             case AuthActionType.LOGIN_USER:{
                 return setAuth({
                     user:payload.user,
-                    loggedIn: true
+                    loggedIn: true,
+                    page: payload.page
                 })
             }
             case AuthActionType.LOGOUT_USER:{
                 return setAuth({
-                    user:payload,
-                    loggedIn: false
+                    user:{},
+                    loggedIn: false,
+                    page: payload.page
                 })
             }
 
@@ -70,6 +117,43 @@ function AuthContextProvider(props) {
                 return auth;
         }
     }
+
+    auth.swapAllUserScreen = function (){
+        authReducer({
+            type: AuthActionType.SWAP_ALL_USER_SCREEN,
+            payload:{
+                page: "all user"
+            }
+        })
+    }
+
+    auth.swapSingleUserScreen = function (){
+        authReducer({
+            type: AuthActionType.SWAP_SINGLE_USER_SCREEN,
+            payload:{
+                page: "single user"
+            }
+        })
+    }
+
+    auth.swapCommunityScreen = function (){
+        authReducer({
+            type: AuthActionType.SWAP_COMMUNITY_SCREEN,
+            payload:{
+                page: "community"
+            }
+        })
+    }
+
+    auth.swapHomeScreen = function (){
+        authReducer({
+            type: AuthActionType.SWAP_HOME_SCREEN,
+            payload:{
+                page: "home"
+            }
+        })
+    }
+
 
     auth.getLoggedIn = async function () {
         const response = await api.getLoggedIn();
@@ -110,7 +194,8 @@ function AuthContextProvider(props) {
             authReducer({
                 type: AuthActionType.LOGIN_USER,
                 payload: {
-                    user: response.data.user
+                    user: response.data.user,
+                    page: "home"
                 }
             })
             history.push("/");
@@ -124,7 +209,9 @@ function AuthContextProvider(props) {
     auth.logoutUser = function(){
         authReducer({
             type:AuthActionType.LOGOUT_USER,
-            payload:{}
+            payload:{
+                page: "log out"
+            }
         })
         history.push("/");
     }
