@@ -18,6 +18,7 @@ export default function BackGroundPage(){
     const ifMenuOpen = Boolean(anchorEl);
 
     const [ifAdding, setIfAdding] = useState(false);
+    const [editActive, setEditActive] = useState(false);
 
     console.log("check idNamePairs: ",store.idNamePairs, " ",JSON.stringify(store.idNamePairs))
     useEffect(() => {
@@ -100,7 +101,7 @@ export default function BackGroundPage(){
     var lists = "";
     if(store){
         console.log("check in store")
-        if(ifAdding && store.currentList){
+        if((ifAdding || editActive) && store.currentList){
             
             lists = 
             <List sx = {{width: '90%', left: '5%', bgcolor: 'background.paper'}}>
@@ -111,6 +112,8 @@ export default function BackGroundPage(){
                         idNamePair = {store.currentList}
                         setIfAdding = {setIfAdding}
                         ifAdding = {ifAdding}
+                        editActive = {editActive}
+                        setEditActive = {setEditActive}
                     />
                     
                 }
@@ -125,6 +128,8 @@ export default function BackGroundPage(){
                                 idNamePair = {pair}
                                 setIfAdding = {setIfAdding}
                                 ifAdding = {ifAdding}
+                                editActive = {editActive}
+                                setEditActive = {setEditActive}
                             />
                         ))
                     }

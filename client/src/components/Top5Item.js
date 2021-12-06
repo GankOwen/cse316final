@@ -13,7 +13,8 @@ import EditIcon from '@mui/icons-material/Edit';
 */
 function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
-    const [editActive, setEditActive] = useState(false);
+    const editActive = props.editActive;
+    const setEditActive = props.setEditActive;
     const [draggedTo, setDraggedTo] = useState(0);
     const [text, setText] = useState(props.text);
 
@@ -103,7 +104,7 @@ function Top5Item(props) {
                         >{index+1}. {props.text}</Box>
         </div>
 
-        if(ifAdding){
+        if(ifAdding || editActive){
             returnItem = 
             <TextField
                 margin="normal"

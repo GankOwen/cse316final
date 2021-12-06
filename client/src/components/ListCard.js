@@ -24,10 +24,9 @@ import AuthContext from '../auth';
 */
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
-    const [editActive, setEditActive] = useState(false);
     const { auth } = useContext(AuthContext);
     const [text, setText] = useState("");
-    const { idNamePair } = props;
+    const { idNamePair, editActive, setEditActive } = props;
     const [open, setOpen] = useState(false);
     const [cardClick, setClickOpen] = useState(false);
     const ifAdding = props.ifAdding;
@@ -64,7 +63,8 @@ function ListCard(props) {
     }
 
     async function handlePublishClose(){
-
+        store.publishList(idNamePair._id, idNamePair.name, idNamePair.items);
+        store.closeCurrentList();
     }
 
     function handleKeyPress(event) {
@@ -127,6 +127,10 @@ function ListCard(props) {
     function handleUpdateText(event){
         idNamePair.name = event.target.value;
     }
+    function handleEditList(event, id){
+        store.setCurrentList(id)
+        setEditActive(true);
+    }
     if (store.currentList) {
         //console.log("check current",store.currentList);
         var publishedItems = 
@@ -160,7 +164,8 @@ function ListCard(props) {
     }
 
     let showingPart = <button
-                        >edit</button>
+                        onClick = {(event) => 
+                        {handleEditList(event, idNamePair._id)}}>edit</button>
 
     if(idNamePair.ifPublished){
         showingPart = <div
@@ -169,7 +174,8 @@ function ListCard(props) {
         </div>
     }
 
-    if(ifAdding && store.currentList){
+    if((ifAdding || editActive) && store.currentList){
+        console.log("true edit")
         var addingLists = 
         <List id="edit-items" sx={{ width: '100%', bgcolor: 'background.paper', height:'50%', fontSize : '15pt'}}>
             {
@@ -178,7 +184,9 @@ function ListCard(props) {
                         key = {'top5-item-' + (index+1) +item}
                         text = {item}
                         index = {index}
-                        ifAdding = {ifAdding}>
+                        ifAdding = {ifAdding}
+                        editActive = {editActive}
+                        setEditActive = {setEditActive}>
                     </Top5Item>
                 ))
             }
@@ -385,18 +393,17 @@ function ListCard(props) {
                 
         </ListItem>
             
-    }else if(ifAdding){
+    }else if(ifAdding || editActive){
         cardElement = 
         <div id = 'top5-worksapce'
             style = {{height : '40rem'}}>
             <div id = "workspace-edit"
                 >
                 <input id = 'top5-name-input'
-                    type = "text"
                     placeholder = "Put your list name in here"
                     style = {{width : "100%"}}
                     onChange = {(event)=>setText(event.target.value)}
-                    onKeyPress = {handleUpdateText}
+                    onBlur = {handleUpdateText}
                     defaultValue = {idNamePair.name}
                     ></input>
                 <div
@@ -413,13 +420,15 @@ function ListCard(props) {
                 <div
                     style = {{top : "90%"}}>
                 <button
-                    onClick = {()=>{props.setIfAdding(false);
+                    onClick = {()=>{props.setIfAdding(false)
+                        setEditActive(false);
                         handleCloseList()}}>
                     Save
                 </button>
                 <button
                     onClick = {()=>{props.setIfAdding(false)
-                        /* handlePublishClose() */}}>
+                        setEditActive(false)
+                        handlePublishClose()}}>
                     Publish
                 </button>
                 </div>

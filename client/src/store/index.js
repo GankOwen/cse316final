@@ -241,6 +241,7 @@ function GlobalStoreContextProvider(props) {
         if (response.data.success) {
             let top5List = response.data.top5List;
             if(auth.user.email === top5List.ownerEmail){
+                console.log(name);
                 top5List.name = name;
                 top5List.items = items;
                 top5List.ifPublished = true;
@@ -250,9 +251,9 @@ function GlobalStoreContextProvider(props) {
                 var yyyy = today.getFullYear();
 
                 today = mm + '/' + dd + '/' + yyyy;
-
-                top5List.date = today
-
+                console.log(today);
+                top5List.date = today;
+                console.log("top5 date", top5List.date);
                 async function updateList(top5List) {
                     response = await api.updateTop5ListById(top5List._id, top5List);
                     if (response.data.success) {
@@ -706,6 +707,7 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.updateCurrentList = async function () {
+        console.log(store.currentList.name)
         const response = await api.updateTop5ListById(store.currentList._id, store.currentList);
         if (response.data.success) {
             storeReducer({
