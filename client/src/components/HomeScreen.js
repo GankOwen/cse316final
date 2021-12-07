@@ -18,6 +18,7 @@ const HomeScreen = () => {
     
     useEffect(() => {
         auth.swapHomeScreen();
+        console.log("in home screen",auth.page);
         store.loadIdNamePairs();
     }, []);
 

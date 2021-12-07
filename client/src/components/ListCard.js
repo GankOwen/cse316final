@@ -200,7 +200,6 @@ function ListCard(props) {
             sx={{ display: 'flex', p: 1 , backgroundColor : displayCardColor}}
             button
             style={{
-                top: '10%',
                 width: '100%',
                 height: 'auto',
                 display : "flex",
@@ -235,8 +234,6 @@ function ListCard(props) {
                                 style = {{ height : '48px', width : '39px'}}
                                 onClick = {(event) => {
                                     event.stopPropagation();
-                                    console.log("check event: ",event.target);
-                                    //store.addingLikeList(event.target.getAttribute("_id"));
                                     store.increaseLikeNumber(event.target.getAttribute("_id"))}}>
 
                             </img>
@@ -326,7 +323,11 @@ function ListCard(props) {
                         <div
                             style = {{display : "flex", flexDirection : "row", height : '4rem', width : '4rem', marginRight : '1rem'}}>
                             <img src = {Icons.icon_like}
-                            style = {{ height : '48px', width : '39px'}}>
+                            style = {{ height : '48px', width : '39px'}}
+                            _id = {idNamePair._id}
+                            onClick = {(event) => {
+                                event.stopPropagation();
+                                store.increaseLikeNumber(event.target.getAttribute("_id"))}}>
 
                             </img>
                             <div 
@@ -339,7 +340,11 @@ function ListCard(props) {
                         <div
                             style = {{display : "flex", flexDirection : "row", height : '4rem', width : '4rem'}}>
                             <img src = {Icons.icon_dislike}
-                            style = {{ marginTop:'13pt', height : '48px', width : '39px', marginTop : '5px'}}>
+                            style = {{ marginTop:'13pt', height : '48px', width : '39px', marginTop : '5px'}}
+                            _id = {idNamePair._id}
+                            onClick = {(event) => {
+                                event.stopPropagation();
+                                store.decreaseLikeNumber(event.target.getAttribute("_id"))}}>
                             
                             </img>
                             <div

@@ -41,36 +41,46 @@ export default function BackGroundPage(){
     }
 
     const handleSortByLastest = () => {
+        store.loadIdNamePairsByLatestDate()
         handleMenuClose()
     }
     const handleSortByOldest = () => {
+        store.loadIdNamePairsByOldestDate()
         handleMenuClose()
     }
 
     const handleSortByView = () => {
+        store.loadIdNamePairsByView()
         handleMenuClose()
     }
     const handleSortByLike = () => {
+        store.loadIdNamePairsByLike()
         handleMenuClose()
     }
     const handleSortByDislike = () => {
+        store.loadIdNamePairsByDislike()
         handleMenuClose()
     }
 
     function handleHomeClick (){
+        store.loadIdNamePairsByView()
         auth.swapHomeScreen();
+        store.loadIdNamePairs();
     }
 
     function handleAllUserClick (){
         auth.swapAllUserScreen();
+        store.loadIdNamePairs();
     }
 
     function handleSingleUserClick(){
         auth.swapSingleUserScreen();
+        store.loadIdNamePairs();
     }
 
     function handleCommunityClick(){
         auth.swapCommunityScreen();
+        store.loadIdNamePairs();
     }
 
     function searchingHandler(event){
@@ -96,11 +106,11 @@ export default function BackGroundPage(){
                 vertical : 'top',
                 horizontal: 'right'
             }}>
-                <MenuItem onClick = {handleMenuClose}> Publish Date(Newest)</MenuItem>
-                <MenuItem onClick = {handleMenuClose}> Publish Date(Oldest)</MenuItem>
-                <MenuItem onClick = {handleMenuClose}> Views</MenuItem>
-                <MenuItem onClick = {handleMenuClose}> Likes</MenuItem>
-                <MenuItem onClick = {handleMenuClose}> Dislikes</MenuItem>
+                <MenuItem onClick = {handleSortByLastest}> Publish Date(Newest)</MenuItem>
+                <MenuItem onClick = {handleSortByOldest}> Publish Date(Oldest)</MenuItem>
+                <MenuItem onClick = {handleSortByView}> Views</MenuItem>
+                <MenuItem onClick = {handleSortByLike}> Likes</MenuItem>
+                <MenuItem onClick = {handleSortByDislike}> Dislikes</MenuItem>
 
         </Menu>
     );

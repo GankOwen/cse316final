@@ -251,12 +251,20 @@ function GlobalStoreContextProvider(props) {
                 var mm = String(monthNames[today.getMonth()]);
                 var yyyy = today.getFullYear();
 
+                
+                var dd2 = String(today.getDate()).padStart(2, '0');
+                var mm2 = String(today.getMonth() + 1).padStart(2, '0'); 
+                var yyyy2 = today.getFullYear();
+
+                var sortingToday = mm2 + '/' + dd2 + '/' + yyyy2;
+
                 // for(var i = 0; i < items)
                 // top5List.publishedItems = 
 
                 today = mm + '/' + dd + '/' + yyyy;
                 console.log(today);
                 top5List.date = today;
+                top5List.sortingDate = sortingToday;
                 console.log("top5 date", top5List.date);
                 async function updateList(top5List) {
                     response = await api.updateTop5ListById(top5List._id, top5List);
@@ -533,7 +541,7 @@ function GlobalStoreContextProvider(props) {
     }
 
     function filterPublishedListForAllUser(list){
-        if(list.ifPublished === true && store.searchingKey!== null && (list.name).startsWith(store.searchingKey)){
+        if(list.ifPublished === true && store.searchingKey!== null && (list.name.toLowerCase()).startsWith(store.searchingKey.toLowerCase())){
             return true;
         }
         return false;
@@ -541,11 +549,15 @@ function GlobalStoreContextProvider(props) {
 
     function filterPublishedListForSingleUser(list){
         console.log("published: ",list.ifPublished, "search key if null :", store.searchingKey!== null, "if author equal: ",list.author === store.searchingKey)
-        if(list.ifPublished === true && store.searchingKey!== null && (list.userName).startsWith(store.searchingKey)){
+        if(list.ifPublished === true && store.searchingKey!== null && (list.userName.toLowerCase()).startsWith(store.searchingKey.toLowerCase())){
             return true;
         }
         return false;
     }
+
+    // function filterOfLikeForOwned(list){
+    //     if(list.likeNumber === )
+    // }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
@@ -609,6 +621,139 @@ function GlobalStoreContextProvider(props) {
         }
     }
 
+    store.loadIdNamePairsByLike = async function () {
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+                let pairsArray = pairsArrayOfDB
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                pairsArray = pairsArray.sort(function(a,b){return b.likeNumber - a.likeNumber});
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.likeNumber - a.likeNumber});
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.likeNumber - a.likeNumber});
+                }
+                console.log("sorting check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
+    store.loadIdNamePairsByDislike = async function () {
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+                let pairsArray = pairsArrayOfDB
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                pairsArray = pairsArray.sort(function(a,b){return b.dislikeNumber - a.dislikeNumber});
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.dislikeNumber - a.dislikeNumber});
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.dislikeNumber - a.dislikeNumber});
+                }
+                console.log("sorting check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
+    store.loadIdNamePairsByView = async function () {
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+                let pairsArray = pairsArrayOfDB
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                pairsArray = pairsArray.sort(function(a,b){return b.viewNumber - a.viewNumber});
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.viewNumber - a.viewNumber});
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.viewNumber - a.viewNumber});
+                }
+                console.log("sorting check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
+    store.loadIdNamePairsByLatestDate = async function () {
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+                let pairsArray = pairsArrayOfDB
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                pairsArray = pairsArray.sort(function(a,b){return b.sortingDate - a.sortingDate});
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.sortingDate - a.sortingDate});
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                    pairsArray = pairsArray.sort(function(a,b){return b.sortingDate - a.sortingDate});
+                }
+                console.log("sorting check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
+    store.loadIdNamePairsByOldestDate = async function () {
+        const response = await api.getTop5ListPairs();
+        if (response.data.success) {
+            let pairsArrayOfDB = response.data.idNamePairs;
+                let pairsArray = pairsArrayOfDB
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                pairsArray = pairsArray.sort(function(a,b){return a.sortingDate - b.sortingDate});
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                    pairsArray = pairsArray.sort(function(a,b){return a.sortingDate - b.sortingDate});
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                    pairsArray = pairsArray.sort(function(a,b){return a.sortingDate - b.sortingDate});
+                }
+                console.log("sorting check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
+        }
+        else {
+            console.log("API FAILED TO GET THE LIST PAIRS");
+        }
+    }
+
+
+
+
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = async function () {
         const response = await api.getTop5ListPairs();
@@ -617,15 +762,12 @@ function GlobalStoreContextProvider(props) {
                 let pairsArray = pairsArrayOfDB
                 console.log("seaching key in filter : ", store.searchingKey)
                 console.log("page::::", auth.page);
-                if(auth.page === 'home'){
-                    pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
-                }
+                pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
                 if(auth.page === 'single user'){
                     pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
                 }else if(auth.page === 'all user'){
                     pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
                 }
-                console.log("searching check: ",pairsArray);
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
                     payload: pairsArray

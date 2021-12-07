@@ -16,7 +16,8 @@ const Top5ListSchema = new Schema(
         viewNumber:{type:Number, require:true},
         userLikeList:{type:[String], require:true},
         userDislikeList:{type:[String], require:true},
-        userName: { type: String, required: true }
+        userName: { type: String, required: true },
+        sortingDate:{type:String, require:false}
     },
     { timestamps: true },
 )

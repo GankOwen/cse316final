@@ -145,7 +145,7 @@ function AuthContextProvider(props) {
         })
     }
 
-    auth.swapHomeScreen = function (){
+    auth.swapHomeScreen = async function (){
         authReducer({
             type: AuthActionType.SWAP_HOME_SCREEN,
             payload:{
