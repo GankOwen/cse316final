@@ -77,11 +77,11 @@ updateUserById = async (req,res) =>{
 
 registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, email, password, passwordVerify } = req.body;
+        const { firstName, lastName, email, password, passwordVerify, userName } = req.body;
         console.log(req.body)
         
-        if (!firstName || !lastName || !email || !password || !passwordVerify) {
-            
+        if (!firstName || !lastName || !email || !password || !passwordVerify || !userName) {
+
             return res
                 .status(201)
                 .json({ errorMessage: "Please enter all required fields." });
@@ -112,12 +112,22 @@ registerUser = async (req, res) => {
                 })
         }
 
+        const existingUser2 = await User.findOne({ userName: userName });
+        if (existingUser2) {
+            return res
+                .status(201)
+                .json({
+                    success: false,
+                    errorMessage: "An account with this username already exists."
+                })
+        }
+
         const saltRounds = 10;
         const salt = await bcrypt.genSalt(saltRounds);
         const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = new User({
-            firstName, lastName, email, passwordHash
+            firstName, lastName, email, passwordHash, userName
         });
         const savedUser = await newUser.save();
 
@@ -133,6 +143,7 @@ registerUser = async (req, res) => {
                 firstName: savedUser.firstName,
                 lastName: savedUser.lastName,
                 email: savedUser.email,
+                userName: savedUser.userName,
                 likeLists : savedUser.likeLists,
                 dislikeLists : savedUser.dislikeLists 
             }
@@ -152,8 +163,8 @@ registerUser = async (req, res) => {
     logInUser = async (req, res) => {
         console.log("1234")
         try {
-            const {email, password} = req.body;
-            if (!email || !password) {
+            const {userName, password} = req.body;
+            if (!userName || !password) {
                 return res
                     .status(201)
                     .json({ errorMessage: "Please enter all required fields." });
@@ -166,7 +177,7 @@ registerUser = async (req, res) => {
                     });
             }
 
-            const existingUser = await User.findOne({ email: email });
+            const existingUser = await User.findOne({ userName: userName });
             if (!existingUser) {
                 return res
                     .status(201)
@@ -199,7 +210,8 @@ registerUser = async (req, res) => {
                     firstName: existingUser.firstName,
                     lastName: existingUser.lastName,
                     email: existingUser.email,
-                    id: existingUser._id
+                    id: existingUser._id,
+                    userName: existingUser.userName
                 }
             }).send();
         } catch (err) {

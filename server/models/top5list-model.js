@@ -15,7 +15,8 @@ const Top5ListSchema = new Schema(
         ifPublished:{type: Boolean, require: true},
         viewNumber:{type:Number, require:true},
         userLikeList:{type:[String], require:true},
-        userDislikeList:{type:[String], require:true}
+        userDislikeList:{type:[String], require:true},
+        userName: { type: String, required: true }
     },
     { timestamps: true },
 )

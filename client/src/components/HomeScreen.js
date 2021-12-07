@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import List from '@mui/material/List';
 import Icons from '../icons/'
 import BackGroundPage from './BackGroundPage';
+import AuthContext from '../auth';
 /*
     This React component lists all the top5 lists in the UI.
     
@@ -13,8 +14,10 @@ import BackGroundPage from './BackGroundPage';
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
+    const {auth} = useContext(AuthContext);
     
     useEffect(() => {
+        auth.swapHomeScreen();
         store.loadIdNamePairs();
     }, []);
 

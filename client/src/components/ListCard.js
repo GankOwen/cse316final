@@ -216,7 +216,7 @@ function ListCard(props) {
                     </div>
                     <div
                         style = {{ marginTop : "10pt"}}>
-                        By: {idNamePair.author}
+                        By: {idNamePair.userName}
                     </div>
 
                     {showingPart}
@@ -312,7 +312,7 @@ function ListCard(props) {
                     </div>
                     <div
                         style = {{ marginTop : "10pt"}}>
-                        By: {idNamePair.author}
+                        By: {idNamePair.userName}
                     </div>
                     {publishedItems}
                     {showingPart}

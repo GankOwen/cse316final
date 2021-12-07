@@ -138,6 +138,7 @@ getTop5ListPairs = async (req, res) => {
                     name: list.name,
                     ownerEmail: list.ownerEmail,
                     author: list.author,
+                    userName: list.userName,
                     likeNumber: list.likeNumber,
                     dislikeNumber: list.dislikeNumber,
                     ifPublished: list.ifPublished,

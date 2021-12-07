@@ -23,7 +23,7 @@ function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        page: "log out"
+        page: "home"
     });
     const history = useHistory();
     const [open, setOpen] = useState(false);
@@ -174,6 +174,7 @@ function AuthContextProvider(props) {
         response = await api.registerUser(userData);
         console.log(response.data.user); 
         if (response.status === 200) {
+            auth.swapHomeScreen();
             authReducer({
                 type: AuthActionType.REGISTER_USER,
                 payload: {
@@ -195,10 +196,10 @@ function AuthContextProvider(props) {
                 type: AuthActionType.LOGIN_USER,
                 payload: {
                     user: response.data.user,
-                    page: "home"
                 }
             })
             history.push("/");
+            auth.page = 'home';
             store.loadIdNamePairs();
         }else{
             setMessage(response.data.errorMessage);

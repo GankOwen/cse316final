@@ -24,8 +24,10 @@ export default function RegisterScreen() {
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
             email: formData.get('email'),
+            userName: formData.get('email'),
             password: formData.get('password'),
-            passwordVerify: formData.get('passwordVerify')
+            passwordVerify: formData.get('passwordVerify'),
+            userName: formData.get('userName')
         }, store);
     };
 
@@ -69,6 +71,18 @@ export default function RegisterScreen() {
                                     autoComplete="lname"
                                 />
                             </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="userName"
+                                    label="User Name"
+                                    name="userName"
+                                    autoComplete="uname"
+                                />
+                            </Grid>
+
                             <Grid item xs={12}>
                                 <TextField
                                     required

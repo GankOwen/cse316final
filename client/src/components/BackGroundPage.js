@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton  from '@mui/material/IconButton';
 import SortIcon from '@mui/icons-material/Sort';
 import AuthContext from '../auth';
+import { useHistory } from 'react-router-dom';
 
 
 export default function BackGroundPage(){
@@ -16,11 +17,12 @@ export default function BackGroundPage(){
     const { auth } = useContext(AuthContext);
     const [anchorEl, setAnchorEl] = useState(null);
     const ifMenuOpen = Boolean(anchorEl);
+    const history = useHistory();
 
     const [ifAdding, setIfAdding] = useState(false);
     const [editActive, setEditActive] = useState(false);
 
-    console.log("check idNamePairs: ",store.idNamePairs, " ",JSON.stringify(store.idNamePairs))
+    //console.log("check idNamePairs: ",store.idNamePairs, " ",JSON.stringify(store.idNamePairs))
     useEffect(() => {
          store.loadIdNamePairs();
     }, []);
@@ -69,6 +71,13 @@ export default function BackGroundPage(){
 
     function handleCommunityClick(){
         auth.swapCommunityScreen();
+    }
+
+    function searchingHandler(event){
+        event.preventDefault();
+        console.log("search key: ",event.target.value);
+        store.searchingKey = event.target.value;
+        store.loadIdNamePairs();
     }
 
     const menuId = 'sort-list-menu';
@@ -137,7 +146,6 @@ export default function BackGroundPage(){
         }
     }
 
-
     return (
         <div id = "top5-list-selector">
                     <div id = "list-selector-heading"
@@ -180,7 +188,8 @@ export default function BackGroundPage(){
                             <input style = {{width:"35%", height : "100%", marginLeft: "10%"}}
                                 id = "top5_lister_search_bar"
                                 type = "text"
-                                placeholder = "Search in here">
+                                placeholder = "Search in here"
+                                onChange = {(event)=>{searchingHandler(event)}}>
                             
                             </input>
 

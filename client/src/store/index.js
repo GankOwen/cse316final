@@ -49,7 +49,8 @@ function GlobalStoreContextProvider(props) {
         listMarkedForDeletion: null,
         homePage: true,
         allListPage:false,
-        userListPage: false
+        userListPage: false,
+        searchingKey: null
     });
     const history = useHistory();
 
@@ -249,6 +250,9 @@ function GlobalStoreContextProvider(props) {
                 var dd = String(today.getDate());
                 var mm = String(monthNames[today.getMonth()]);
                 var yyyy = today.getFullYear();
+
+                // for(var i = 0; i < items)
+                // top5List.publishedItems = 
 
                 today = mm + '/' + dd + '/' + yyyy;
                 console.log(today);
@@ -528,6 +532,21 @@ function GlobalStoreContextProvider(props) {
         return false;
     }
 
+    function filterPublishedListForAllUser(list){
+        if(list.ifPublished === true && store.searchingKey!== null && (list.name).startsWith(store.searchingKey)){
+            return true;
+        }
+        return false;
+    }
+
+    function filterPublishedListForSingleUser(list){
+        console.log("published: ",list.ifPublished, "search key if null :", store.searchingKey!== null, "if author equal: ",list.author === store.searchingKey)
+        if(list.ifPublished === true && store.searchingKey!== null && (list.userName).startsWith(store.searchingKey)){
+            return true;
+        }
+        return false;
+    }
+
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
         storeReducer({
@@ -554,7 +573,8 @@ function GlobalStoreContextProvider(props) {
             ifPublished: false,
             viewNumber: 0,
             ifLike: false,
-            ifDislike: false
+            ifDislike: false,
+            userName: auth.user.userName
         };
         const response = await api.createTop5List(payload);
         if (response.data.success) {
@@ -594,11 +614,23 @@ function GlobalStoreContextProvider(props) {
         const response = await api.getTop5ListPairs();
         if (response.data.success) {
             let pairsArrayOfDB = response.data.idNamePairs;
-            let pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
-            storeReducer({
-                type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                payload: pairsArray
-            });
+                let pairsArray = pairsArrayOfDB
+                console.log("seaching key in filter : ", store.searchingKey)
+                console.log("page::::", auth.page);
+                if(auth.page === 'home'){
+                    pairsArray = pairsArrayOfDB.filter(filterEmailForUser);
+                }
+                if(auth.page === 'single user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForSingleUser);
+                }else if(auth.page === 'all user'){
+                    pairsArray = pairsArrayOfDB.filter(filterPublishedListForAllUser);
+                }
+                console.log("searching check: ",pairsArray);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: pairsArray
+                });
+            
         }
         else {
             console.log("API FAILED TO GET THE LIST PAIRS");
